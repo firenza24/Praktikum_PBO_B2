@@ -1,0 +1,236 @@
+from abc import ABC, abstractmethod
+
+
+# ==========================================
+# 1. ABSTRAKSI (Abstract Base Class)
+# ==========================================
+class ItemPercetakan(ABC):
+    """Abstract Base Class untuk semua item/produk percetakan di Stickyfy."""
+
+    def __init__(self, jenis_percetakan, harga):
+        self.__jenis_percetakan = jenis_percetakan
+        self.harga = harga
+
+    @property
+    def jenis_percetakan(self):
+        return self.__jenis_percetakan
+
+    @property
+    def harga(self):
+        return self._harga
+
+    @harga.setter
+    def harga(self, harga_baru):
+        if not isinstance(harga_baru, (int, float)) or harga_baru <= 0:
+            raise ValueError("Harga harus angka dan harus lebih dari 0")
+        self._harga = harga_baru
+
+    @abstractmethod
+    def hitung_harga(self, jumlah):
+        pass
+
+    @abstractmethod
+    def tampilkan_detail(self):
+        pass
+
+    def info_toko(self):
+        print(f"[INFO] Layanan resmi dari toko percetakan Stickyfy.")
+
+
+# ==========================================
+# 2. INHERITANCE & POLIMORFISME VIA PEWARISAN
+# ==========================================
+class ProdukStiker(ItemPercetakan):
+
+    def __init__(self, jenis_percetakan, harga, ukuran):
+        super().__init__(jenis_percetakan, harga)
+        self.ukuran = ukuran
+
+    def hitung_harga(self, jumlah):
+        return self.harga * jumlah
+
+    def tampilkan_detail(self):
+        print(
+            f"Produk Stiker : {self.jenis_percetakan} | Ukuran: {self.ukuran} | Harga: Rp{self.harga}/pcs"
+        )
+
+
+class ProdukSpanduk(ItemPercetakan):
+
+    def __init__(self, jenis_percetakan, harga, ukuran_m2):
+        super().__init__(jenis_percetakan, harga)
+        self.ukuran_m2 = ukuran_m2
+
+    def hitung_harga(self, jumlah):
+        return self.harga * self.ukuran_m2 * jumlah
+
+    def tampilkan_detail(self):
+        print(
+            f"Produk Spanduk: {self.jenis_percetakan} | Ukuran: {self.ukuran_m2} m2 | Harga: Rp{self.harga}/m2"
+        )
+
+
+# ==========================================
+# 3. DUCK TYPING
+# ==========================================
+class LayananDesainKilat:
+
+    def __init__(self, nama_desain, tarif):
+        self.jenis_percetakan = nama_desain
+        self.tarif = tarif
+
+    def hitung_harga(self, jumlah):
+        return self.tarif * jumlah
+
+    def tampilkan_detail(self):
+        print(
+            f"Jasa Desain   : {self.jenis_percetakan} | Tarif Tetap: Rp{self.tarif}"
+        )
+
+
+# ==========================================
+# 4. KELAS PENDUKUNG & OPERATOR OVERLOADING (__str__)
+# ==========================================
+class Pelanggan:
+    nama_toko = "Stickyfy"
+
+    def __init__(self, nama):
+        if not Pelanggan.cek_nama(nama):
+            raise ValueError("Nama Pelanggan Tidak Boleh Kosong..")
+        self.nama = nama
+
+    def tampilkan(self):
+        print(f"Pelanggan : {self.nama} | Toko: {Pelanggan.nama_toko}")
+
+    def pesan(self, manajemen, item_percetakan, jumlah):
+        print(f"{self.nama} memesan {jumlah} x {item_percetakan.jenis_percetakan}")
+        return manajemen.tambah(self, item_percetakan, jumlah)
+
+    @staticmethod
+    def cek_nama(nama):
+        return isinstance(nama, str) and nama.strip() != ""
+
+
+class Pesanan:
+    total_pesanan = 0
+
+    def __init__(self, pelanggan, item_percetakan, jumlah):
+        self.pelanggan = pelanggan
+        self.item_percetakan = item_percetakan
+        self.harga_satuan = (
+            item_percetakan.harga
+            if hasattr(item_percetakan, "harga")
+            else item_percetakan.tarif
+        )
+        self.status = "Menunggu"
+        self.jumlah = jumlah
+
+        Pesanan.total_pesanan += 1
+        self.id_pesanan = Pesanan.total_pesanan
+
+    @property
+    def total_harga(self):
+        return self.item_percetakan.hitung_harga(self.jumlah)
+
+    # Operator Overloading menggunakan __str__ saja
+    def __str__(self):
+        return (
+            f"Pesanan ID: #{self.id_pesanan} | Pelanggan: {self.pelanggan.nama} | "
+            f"Produk: {self.item_percetakan.jenis_percetakan} | Total Harga: Rp{self.total_harga}"
+        )
+
+    def tampilkan(self):
+        print(f"Pesanan ID  : #{self.id_pesanan}")
+        print(f"Pelanggan   : {self.pelanggan.nama}")
+        self.item_percetakan.tampilkan_detail()
+        print(f"Jumlah      : {self.jumlah}")
+        print(f"Total Harga : Rp{self.total_harga}")
+        print(f"Status      : {self.status}")
+
+
+class ManajemenPesanan:
+
+    def __init__(self):
+        self._daftar_pesanan = []
+
+    def tambah(self, pelanggan, item_percetakan, jumlah):
+        pesanan = Pesanan(pelanggan, item_percetakan, jumlah)
+        self._daftar_pesanan.append(pesanan)
+        print(f"[OK] Pesanan #{pesanan.id_pesanan} berhasil dicatat.")
+        return pesanan
+
+    def tampilkan_semua(self):
+        if not self._daftar_pesanan:
+            print("(Belum ada pesanan)")
+        for pesanan in self._daftar_pesanan:
+            print(pesanan)  # Memanggil magic method __str__ secara otomatis
+            print("-" * 50)
+
+
+# ==========================================
+# PENGUJIAN PROGRAM
+# ==========================================
+if __name__ == "__main__":
+    print("=" * 65)
+    print(f"{'DEMONSTRASI PROGRAM STICKYFY - OPERATOR OVERLOADING __str__':^65}")
+    print("=" * 65)
+
+    # 1. Bukti Abstract Class Tidak Bisa Diinstansiasi
+    print(
+        "\n[1. BUKTI ABSTRAKSI & PENGUJIAN INSTANSIASI ABSTRACT BASE CLASS]"
+    )
+    try:
+        item_salah = ItemPercetakan("Barang Umum", 5000)
+    except TypeError as e:
+        print(f"[GAGAL DIINSTANSIASI SESUAI TEORI] Terdeteksi TypeError:\n -> {e}")
+
+    # 2. Inisialisasi Objek Subclass & Pengujian Method Konkret
+    print(
+        "\n[2. INISIALISASI OBJEK SUBCLASS & PENGGUNAAN METHOD KONKRET BERSAMA]"
+    )
+    pelanggan1 = Pelanggan("Rega")
+    pelanggan2 = Pelanggan("Wahyu")
+
+    produk1 = ProdukStiker("Stiker Vinyl Glossy", 2500, "A6")
+    produk2 = ProdukSpanduk("Spanduk Outdoor", 25000, 2)
+
+    produk1.info_toko()
+    produk1.tampilkan_detail()
+    produk2.tampilkan_detail()
+
+    # 3. Polimorfisme via Pewarisan
+    print(
+        "\n[3. POLIMORFISME VIA PEWARISAN (Satu Loop untuk Subclass Berbeda)]"
+    )
+    daftar_katalog = [produk1, produk2]
+    for item in daftar_katalog:
+        item.tampilkan_detail()
+
+    # 4. Duck Typing Demonstration
+    print(
+        "\n[4. DEMONSTRASI DUCK TYPING (Kelas Luar Tanpa Hubungan Pewarisan)]"
+    )
+    jasa_desain = LayananDesainKilat("Desain Maskot Vector", 50000)
+
+
+    def proses_pembayaran_fleksibel(objek_layanan, jumlah):
+        print(f"Memproses item ber-interface duck typing...")
+        objek_layanan.tampilkan_detail()
+        print(
+            f"-> Total Biaya untuk {jumlah} layanan: Rp{objek_layanan.hitung_harga(jumlah)}"
+        )
+
+
+    proses_pembayaran_fleksibel(produk1, 10)
+    proses_pembayaran_fleksibel(jasa_desain, 2)
+
+    # 5. Manajemen Pesanan & Operator Overloading (__str__)
+    print(
+        "\n[5. MANAJEMEN PESANAN, KOMPOSISI, & OPERATOR OVERLOADING (__str__)]"
+    )
+    manajemen = ManajemenPesanan()
+    pesanan1 = pelanggan1.pesan(manajemen, produk1, 20)
+    pesanan2 = pelanggan2.pesan(manajemen, jasa_desain, 2)
+
+    print("\nMenampilkan Daftar Pesanan dengan Overloaded `__str__`:")
+    manajemen.tampilkan_semua()
