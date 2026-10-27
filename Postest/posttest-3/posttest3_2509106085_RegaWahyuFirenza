@@ -1,11 +1,6 @@
 from abc import ABC, abstractmethod
 
-
-# ==========================================
-# 1. ABSTRAKSI (Abstract Base Class)
-# ==========================================
 class ItemPercetakan(ABC):
-    """Abstract Base Class untuk semua item/produk percetakan di Stickyfy."""
 
     def __init__(self, jenis_percetakan, harga):
         self.__jenis_percetakan = jenis_percetakan
@@ -36,10 +31,6 @@ class ItemPercetakan(ABC):
     def info_toko(self):
         print(f"[INFO] Layanan resmi dari toko percetakan Stickyfy.")
 
-
-# ==========================================
-# 2. INHERITANCE & POLIMORFISME VIA PEWARISAN
-# ==========================================
 class ProdukStiker(ItemPercetakan):
 
     def __init__(self, jenis_percetakan, harga, ukuran):
@@ -69,10 +60,6 @@ class ProdukSpanduk(ItemPercetakan):
             f"Produk Spanduk: {self.jenis_percetakan} | Ukuran: {self.ukuran_m2} m2 | Harga: Rp{self.harga}/m2"
         )
 
-
-# ==========================================
-# 3. DUCK TYPING
-# ==========================================
 class LayananDesainKilat:
 
     def __init__(self, nama_desain, tarif):
@@ -87,10 +74,6 @@ class LayananDesainKilat:
             f"Jasa Desain   : {self.jenis_percetakan} | Tarif Tetap: Rp{self.tarif}"
         )
 
-
-# ==========================================
-# 4. KELAS PENDUKUNG & OPERATOR OVERLOADING (__str__)
-# ==========================================
 class Pelanggan:
     nama_toko = "Stickyfy"
 
@@ -109,7 +92,6 @@ class Pelanggan:
     @staticmethod
     def cek_nama(nama):
         return isinstance(nama, str) and nama.strip() != ""
-
 
 class Pesanan:
     total_pesanan = 0
@@ -132,7 +114,6 @@ class Pesanan:
     def total_harga(self):
         return self.item_percetakan.hitung_harga(self.jumlah)
 
-    # Operator Overloading menggunakan __str__ saja
     def __str__(self):
         return (
             f"Pesanan ID: #{self.id_pesanan} | Pelanggan: {self.pelanggan.nama} | "
@@ -146,7 +127,6 @@ class Pesanan:
         print(f"Jumlah      : {self.jumlah}")
         print(f"Total Harga : Rp{self.total_harga}")
         print(f"Status      : {self.status}")
-
 
 class ManajemenPesanan:
 
@@ -163,19 +143,14 @@ class ManajemenPesanan:
         if not self._daftar_pesanan:
             print("(Belum ada pesanan)")
         for pesanan in self._daftar_pesanan:
-            print(pesanan)  # Memanggil magic method __str__ secara otomatis
+            print(pesanan)
             print("-" * 50)
 
-
-# ==========================================
-# PENGUJIAN PROGRAM
-# ==========================================
 if __name__ == "__main__":
     print("=" * 65)
     print(f"{'DEMONSTRASI PROGRAM STICKYFY - OPERATOR OVERLOADING __str__':^65}")
     print("=" * 65)
 
-    # 1. Bukti Abstract Class Tidak Bisa Diinstansiasi
     print(
         "\n[1. BUKTI ABSTRAKSI & PENGUJIAN INSTANSIASI ABSTRACT BASE CLASS]"
     )
@@ -184,7 +159,6 @@ if __name__ == "__main__":
     except TypeError as e:
         print(f"[GAGAL DIINSTANSIASI SESUAI TEORI] Terdeteksi TypeError:\n -> {e}")
 
-    # 2. Inisialisasi Objek Subclass & Pengujian Method Konkret
     print(
         "\n[2. INISIALISASI OBJEK SUBCLASS & PENGGUNAAN METHOD KONKRET BERSAMA]"
     )
@@ -198,7 +172,6 @@ if __name__ == "__main__":
     produk1.tampilkan_detail()
     produk2.tampilkan_detail()
 
-    # 3. Polimorfisme via Pewarisan
     print(
         "\n[3. POLIMORFISME VIA PEWARISAN (Satu Loop untuk Subclass Berbeda)]"
     )
@@ -206,7 +179,6 @@ if __name__ == "__main__":
     for item in daftar_katalog:
         item.tampilkan_detail()
 
-    # 4. Duck Typing Demonstration
     print(
         "\n[4. DEMONSTRASI DUCK TYPING (Kelas Luar Tanpa Hubungan Pewarisan)]"
     )
@@ -220,11 +192,9 @@ if __name__ == "__main__":
             f"-> Total Biaya untuk {jumlah} layanan: Rp{objek_layanan.hitung_harga(jumlah)}"
         )
 
-
     proses_pembayaran_fleksibel(produk1, 10)
     proses_pembayaran_fleksibel(jasa_desain, 2)
 
-    # 5. Manajemen Pesanan & Operator Overloading (__str__)
     print(
         "\n[5. MANAJEMEN PESANAN, KOMPOSISI, & OPERATOR OVERLOADING (__str__)]"
     )
